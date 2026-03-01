@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BugAI — Flyer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --p1: #7C3AED;
+  --p2: #A855F7;
+  --p3: #C084FC;
+  --cyan: #22D3EE;
+  --dark: #06020F;
+  --dark2: #0F0A1A;
+  --white: #FAF5FF;
+  --muted: #7C6A99;
+  --card: rgba(124,58,237,0.07);
+  --border: rgba(168,85,247,0.15);
+}
+
+body {
+  background: #000;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  padding: 32px 16px;
+}
+
+.flyer {
+  width: 540px;
+  background: var(--dark);
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 80px rgba(124,58,237,0.15),
+    0 0 160px rgba(124,58,237,0.06),
+    inset 0 1px 0 rgba(168,85,247,0.2);
+}
+
+/* ── NOISE TEXTURE ── */
+.flyer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ── GLOW ORBS ── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(60px);
+}
+.orb-1 { width: 320px; height: 320px; background: radial-gradient(circle, rgba(124,58,237,0.3), transparent 70%); top: -100px; left: -80px; }
+.orb-2 { width: 260px; height: 260px; background: radial-gradient(circle, rgba(34,211,238,0.12), transparent 70%); bottom: 80px; right: -60px; }
+.orb-3 { width: 200px; height: 200px; background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%); top: 45%; left: 50%; transform: translateX(-50%); }
+
+/* ── GRID ── */
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(168,85,247,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168,85,247,0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+}
+
+/* ── INNER CONTENT ── */
+.inner {
+  position: relative;
+  z-index: 1;
+  padding: 44px 40px 40px;
+}
+
+/* ── HEADER ── */
+.header {
+  margin-bottom: 32px;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px 5px 8px;
+  background: rgba(124,58,237,0.12);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 100px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--p3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pill-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #22D3EE;
+  animation: blink 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes blink { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+.flags {
+  display: flex;
+  gap: 6px;
+  font-size: 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  margin-bottom: 4px;
+}
+
+.logo-text {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 1;
+  background: linear-gradient(135deg, #A855F7 0%, #C084FC 40%, #22D3EE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-ai {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 1;
+  color: var(--white);
+  opacity: 0.9;
+}
+
+.tagline {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  margin-bottom: 28px;
+}
+
+.headline {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+
+.headline em {
+  font-style: normal;
+  background: linear-gradient(90deg, #A855F7, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sub {
+  font-size: 13.5px;
+  color: #5B4D72;
+  line-height: 1.75;
+  max-width: 420px;
+}
+
+/* ── DIVIDER ── */
+.sep {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.35), rgba(34,211,238,0.2), transparent);
+  margin: 28px 0;
+}
+
+/* ── SERVICES ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--p2);
+  margin-bottom: 14px;
+}
+
+.services {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.svc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 15px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s;
+}
+
+.svc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--p1), var(--cyan));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.svc:hover { border-color: rgba(168,85,247,0.35); transform: translateY(-1px); }
+.svc:hover::before { opacity: 1; }
+
+.svc-icon { font-size: 20px; margin-bottom: 7px; display: block; }
+.svc-name { font-size: 12.5px; font-weight: 600; color: var(--white); margin-bottom: 3px; }
+.svc-desc { font-size: 11px; color: #4A3D61; line-height: 1.5; }
+
+/* ── PRICING ── */
+.pricing {
+  margin-bottom: 28px;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.price-row:first-child { border-top: 1px solid rgba(255,255,255,0.04); }
+
+.pr-left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.pr-bar {
+  width: 3px;
+  height: 32px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.bar-1 { background: linear-gradient(180deg, #7C3AED, #A855F7); }
+.bar-2 { background: linear-gradient(180deg, #A855F7, #C084FC); }
+.bar-3 { background: linear-gradient(180deg, #22D3EE, #7C3AED); }
+.bar-4 { background: linear-gradient(180deg, #10B981, #22D3EE); }
+
+.pr-name { font-size: 13px; color: var(--white); font-weight: 500; }
+.pr-sub { font-size: 10.5px; color: #4A3D61; margin-top: 2px; }
+
+.pr-right { text-align: right; }
+.pr-price { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 700; color: var(--p3); }
+.pr-usd { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+
+/* ── CTA ── */
+.cta {
+  background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(34,211,238,0.06));
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 20px;
+  padding: 26px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(124,58,237,0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.cta-eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 8px;
+}
+
+.cta-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.cta-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 18px;
+  line-height: 1.6;
+  position: relative;
+}
+
+.btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #6D28D9, #7C3AED);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 12px 30px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 30px rgba(124,58,237,0.4), 0 4px 16px rgba(0,0,0,0.4);
+  position: relative;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 0 40px rgba(124,58,237,0.55), 0 6px 20px rgba(0,0,0,0.4); }
+
+.contacts {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #4A3D61;
+}
+
+.c-icon { font-size: 12px; }
+
+/* Enlaces dentro de contacts: visual, foco y área clicable */
+.contacts a {
+  color: var(--p3);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+  cursor: pointer;
+  display: inline-block;
+}
+.contacts a:hover {
+  background: rgba(168,85,247,0.08);
+  color: var(--white);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.contacts a:active { transform: translateY(0); }
+.contacts a[href^="mailto:"] {
+  background: rgba(34,211,238,0.06);
+  color: var(--cyan);
+}
+.contacts a[href^="https://wa.me"] {
+  background: rgba(16,185,129,0.06);
+  color: #34D399;
+}
+
+/* ── FOOTER ── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 18px;
+}
+
+.f-logo {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #A855F7, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.f-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.f-tag {
+  font-size: 9.5px;
+  color: #4A3D61;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 3px 9px;
+  border-radius: 100px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.flyer { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+</style>
+</head>
+<body>
+<div class="flyer">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid"></div>
+
+  <div class="inner">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="status-bar">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Disponible para nuevos proyectos
+        </div>
+        <div class="flags">🇪🇸 🌎 🇺🇸</div>
+      </div>
+
+      <div class="brand">
+        <span class="logo-text">Bug</span><span class="logo-ai">AI</span>
+      </div>
+      <div class="tagline">Automatizaciones con Inteligencia Artificial · 100% Remoto</div>
+
+      <div class="headline">
+        Haz que tu negocio<br>trabaje <em>mientras tú no.</em>
+      </div>
+      <div class="sub">
+        Diseñamos flujos inteligentes que eliminan el trabajo manual, conectan todas tus herramientas y hacen crecer tu negocio — solo.
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- SERVICES -->
+    <div class="section-label">¿Qué automatizamos?</div>
+    <div class="services">
+      <div class="svc">
+        <span class="svc-icon">🤖</span>
+        <div class="svc-name">Bots con IA</div>
+        <div class="svc-desc">Atención al cliente 24/7 en WhatsApp, Instagram y email</div>
+      </div>
+      <div class="svc">
+        <span class="svc-icon">⚡</span>
+        <div class="svc-name">CRM & Ventas</div>
+        <div class="svc-desc">Pipeline automatizado, leads nutridos sin intervención</div>
+      </div>
+      <div class="svc">
+        <span class="svc-icon">🛒</span>
+        <div class="svc-name">E-commerce</div>
+        <div class="svc-desc">Pedidos, inventario y notificaciones en automático</div>
+      </div>
+      <div class="svc">
+        <span class="svc-icon">📊</span>
+        <div class="svc-name">Datos & Reportes</div>
+        <div class="svc-desc">Dashboards actualizados en tiempo real sin trabajo manual</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- PRICING -->
+    <div class="section-label">Paquetes y tarifas</div>
+    <div class="pricing">
+      <div class="price-row">
+        <div class="pr-left">
+          <div class="pr-bar bar-1"></div>
+          <div>
+            <div class="pr-name">🚀 Starter</div>
+            <div class="pr-sub">1 automatización · entrega en 3 días</div>
+          </div>
+        </div>
+        <div class="pr-right">
+          <div class="pr-price">€149</div>
+          <div class="pr-usd">~$169 USD</div>
+        </div>
+      </div>
+
+      <div class="price-row">
+        <div class="pr-left">
+          <div class="pr-bar bar-2"></div>
+          <div>
+            <div class="pr-name">⚡ Growth</div>
+            <div class="pr-sub">Hasta 3 flujos conectados · 7 días</div>
+          </div>
+        </div>
+        <div class="pr-right">
+          <div class="pr-price">€549</div>
+          <div class="pr-usd">~$599 USD</div>
+        </div>
+      </div>
+
+      <div class="price-row">
+        <div class="pr-left">
+          <div class="pr-bar bar-3"></div>
+          <div>
+            <div class="pr-name">🔥 Pro</div>
+            <div class="pr-sub">Sistema completo · hasta 10 flujos</div>
+          </div>
+        </div>
+        <div class="pr-right">
+          <div class="pr-price">€1.499</div>
+          <div class="pr-usd">~$1.649 USD</div>
+        </div>
+      </div>
+
+      <div class="price-row">
+        <div class="pr-left">
+          <div class="pr-bar bar-4"></div>
+          <div>
+            <div class="pr-name">🔄 Mantenimiento</div>
+            <div class="pr-sub">Monitoreo + 3 ajustes/mes</div>
+          </div>
+        </div>
+        <div class="pr-right">
+          <div class="pr-price">€199<span style="font-size:11px;font-weight:500">/mes</span></div>
+          <div class="pr-usd">~$219 USD/mo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <div class="cta-eyebrow">✦ Oferta de lanzamiento</div>
+      <div class="cta-title">Diagnóstico Gratuito — 30 min</div>
+      <div class="cta-sub">
+        Sin costo. Sin compromiso.<br>
+        Descubrimos exactamente cuántas horas puedes recuperar.
+      </div>
+      <a class="btn" href="#">Agenda tu llamada ahora →</a>
+      <div class="contacts">
+        <div class="contact"><span class="c-icon">📧</span> <a href="mailto:alvarogrimaldos21@gmail.com" target="_blank" rel="noopener">alvarogrimaldos21@gmail.com</a> · <a href="mailto:laiacarrilloes@gmail.com" target="_blank" rel="noopener">laiacarrilloes@gmail.com</a></div>
+        <div class="contact"><span class="c-icon">💬</span> <a href="https://wa.me/573168155085" target="_blank" rel="noopener">+57 3168155085</a> · <a href="https://wa.me/573105708389" target="_blank" rel="noopener">+57 3105708389</a></div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="f-logo">BugAI</div>
+      <div class="f-tags">
+        <span class="f-tag">España </span>
+        <span class="f-tag">LATAM </span>
+        <span class="f-tag">USA </span>
+        <span class="f-tag">Make · n8n · OpenAI</span>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <script>
+  // Respaldo para enlaces mailto: — intenta abrir en nueva pestaña y, si falla, navega directamente.
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a[href^="mailto:"]').forEach(function(a) {
+      // asegurar atributos (por si no se añadieron en HTML)
+      if (!a.getAttribute('target')) a.setAttribute('target', '_blank');
+      if (!a.getAttribute('rel')) a.setAttribute('rel', 'noopener');
+
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var href = this.getAttribute('href');
+        try {
+          // algunos navegadores bloquean window.open para mailto; intentamos de todos modos
+          window.open(href, '_blank');
+        } catch (err) {
+          window.location.href = href;
+        }
+        // fallback: después de un breve retraso forzar la navegación
+        setTimeout(function() { window.location.href = href; }, 600);
+      });
+    });
+  });
+  </script>
+  </body>
+</html>
